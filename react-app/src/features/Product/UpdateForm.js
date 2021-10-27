@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useParams, useHistory } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { addProduct } from './actions';
+import { updateProduct, deleteProduct } from './actions';
 
-//เดียวusereducer
-function AddForm() {
-  const [name, setName] = useState('');
-  const [imageURL, setImageURL] = useState('');
-  const [type, setType] = useState('');
+export default function UpdateForm() {
+  const { id } = useParams();
+  const products = useSelector((state) => state.products);
+  const product = products.find((product) => product.id === Number(id));
+
+  const [name, setName] = useState(product.name);
+  const [type, setType] = useState(product.type);
+  const [imageURL, setImageURL] = useState(product.imageURL);
+
   const dispatch = useDispatch();
   const history = useHistory();
-
-  function onSubmit(event) {
+  const onSubmit = (event) => {
     event.preventDefault();
-    dispatch(addProduct({ name, type, imageURL }));
+    dispatch(updateProduct({ id: product.id, name, type, imageURL }));
     history.push('/');
-  }
+  };
 
+  const onDelete = () => {
+    dispatch(deleteProduct({ id: product.id }));
+    history.push('/');
+  };
+  
     return (
         <>
-          <h1>Add Product</h1>
+          <h1>Update Product</h1>
           <form id="create-form" onSubmit={onSubmit}>
             <div className="input-group">
               <label htmlFor="name">Name</label>
@@ -55,12 +63,12 @@ function AddForm() {
               />
             </div>
     
-            <button type="submit">Add product</button>
+            <button type="button" className="UpdateForm__delete-button" onClick={onDelete}>
+              Delete product
+            </button>
+            <button type="submit">Update product</button>
           </form>
         </>
       );
 
 }
-
-
-export default AddForm;
